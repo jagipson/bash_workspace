@@ -1,0 +1,118 @@
+# Set vi keybindings
+set -o vi
+
+export PATH=~/bin:$PATH
+. $HOME/bin/colors.env
+
+if [[ -e ~/.bash_aliases ]]; then
+	. ~/.bash_aliases
+fi
+
+# Stop processing here, if non-interactive
+[ -z "$PS1" ] && return
+
+### Set TERM, COLORTERM values
+if [ "$TERM" = "xterm" ] ; then
+    if [ -z "$COLORTERM" ] ; then
+        if [ -z "$XTERM_VERSION" ] ; then
+            echo "Warning: Terminal wrongly calling itself 'xterm'."
+        else
+            case "$XTERM_VERSION" in
+                "XTerm(256)") TERM="xterm-256color" ;;
+                "XTerm(88)") TERM="xterm-88color" ;;
+                "XTerm") ;;
+                *)
+                echo "Warning: Unrecognized XTERM_VERSION: $XTERM_VERSION"
+                ;;
+            esac
+        fi
+    else
+        case "$COLORTERM" in
+            gnome-terminal)
+            # Those crafty Gnome folks require you to check COLORTERM,
+            # but don't allow you to just *favor* the setting over TERM.
+            # Instead you need to compare it and perform some guesses
+            # based upon the value. This is, perhaps, too simplistic.
+            TERM="gnome-256color"
+            ;;
+            *)
+            echo "Warning: Unrecognized COLORTERM: $COLORTERM"
+            ;;
+        esac
+    fi
+fi
+SCREEN_COLORS="`tput colors`"
+if [ -z "$SCREEN_COLORS" ] ; then
+    case "$TERM" in
+        screen-*color-bce)
+        echo "Unknown terminal $TERM. Falling back to 'screen-bce'."
+        export TERM=screen-bce
+        ;;
+        *-88color)
+        echo "Unknown terminal $TERM. Falling back to 'xterm-88color'."
+        export TERM=xterm-88color
+        ;;
+        *-256color)
+        echo "Unknown terminal $TERM. Falling back to 'xterm-256color'."
+        export TERM=xterm-256color
+        ;;
+    esac
+    SCREEN_COLORS=`tput colors`
+fi
+if [ -z "$SCREEN_COLORS" ] ; then
+    case "$TERM" in
+        gnome*|xterm*|konsole*|aterm|[Ee]term)
+        echo "Unknown terminal $TERM. Falling back to 'xterm'."
+        export TERM=xterm
+        ;;
+        rxvt*)
+        echo "Unknown terminal $TERM. Falling back to 'rxvt'."
+        export TERM=rxvt
+        ;;
+        screen*)
+        echo "Unknown terminal $TERM. Falling back to 'screen'."
+        export TERM=screen
+        ;;
+    esac
+    SCREEN_COLORS=`tput colors`
+fi
+
+### Host-specific stuff, like setting prompts
+
+case $HOSTNAME in 
+ "ponca")
+	export PS1="\[$txtcyn\][\u@\h \w]\[$bldwht\]\$\[$txtrst\] "
+	alias mutt="echo 'Use blanco for mutt!' && ssh -t jagipson@blanco "
+	;;
+ "blanco")
+	export PS1="\e[0;33m[\u@\h \w]\e[1;37m\$\e[0m "
+	;;
+ "zuni")
+	if [ $USER == "jagipson" ]; then
+	   echo -en $RED
+	   cat ~/.youDontBelongHere.txt
+	   echo -en $WHITE
+	   exit
+	fi
+	export PS1="\e[0;35m[\u@\h \w]\e[1;37m\$\e[0m "
+	;;
+ "zark")
+	export PS1="\e[1;36m[\u@\h \w]\e[1;37m\$\e[0m "
+	;;
+ *)
+	export PS1="\e[1;31m[\u@\h \w]\e[1;37m\$\e[0m "
+	;;
+esac
+	
+
+# Generate warning if Unfiled Downloads has stuff in it.
+
+find $HOME/Unfiled\ Downloads/* &> /dev/null
+if [[ $? -ne 1 ]]; then
+	echo -e  $WHITE***$yellow cruft in $HOME/Unfiled\ Downloads/ $WHITE***$NC
+fi
+echo -en $RED
+cat /etc/redhat-release
+echo -en $NC
+cal
+date

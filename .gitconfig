@@ -1,0 +1,8 @@
+[user]
+	email = jagipson@blanco
+[color]
+	ui = auto
+[init]
+	templatedir = /home/jagipson/git-template
+[core]
+	hooksPath = /home/jagipson/git-template/hooks

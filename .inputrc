@@ -1,0 +1,21 @@
+set editing-mode vi
+set keymap vi
+#set convert-meta on
+set show-all-if-ambiguous on
+set colored-stats on
+# Append char to indicate type
+set visible-stats On
+# # Mark symlinked directories
+set mark-symlinked-directories On
+# # Color the common prefix
+#set colored-completion-prefix On
+# # Color the common prefix in menu-complete
+set menu-complete-display-prefix On
+#
+set match-hidden-files off
+set bell-style audible
+
+# allow ^l to clear screen
+bind -m vi-insert "C-l":clear-screen
+bind -m vi-command "C-l":clear-screen
+
