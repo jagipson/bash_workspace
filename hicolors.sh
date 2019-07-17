@@ -152,3 +152,26 @@ bakhi[73]='\e[48;2;10;20;244m'
 bakhi[74]='\e[48;2;6;13;248m'
 bakhi[75]='\e[48;2;3;6;251m'
 bakhi[76]='\e[48;2;0;0;255m'
+
+# Cache directory checksums in an associative array
+declare -A __dirsum_cache
+
+__colorize_pwd()
+{
+  local p i
+  colorprompt=
+  IFS='/' read -a p <<<"${PWD/#"$HOME"/$'~'}"
+  for i in "${p[@]}"; do
+    [[ ! $i ]] && continue
+    if [[ $i == '~' ]]; then
+      printf -v colorprompt "~" && continue
+    fi
+    # Our \1 and \2 correspond to \[ and \] (See man bash PROMPTING) but because it's
+    # wrapped in a var, \[ and \] don't get interpreted correctly. Geirha suggested using
+    # the undocumented \1 and \2 instead.
+    printf -v colorprompt '%s/\1%b\2%s\1%b\2' "$colorprompt" \
+      "${txthi[$(( ${__dirsum_cache[$i]:=$(cksum - <<<"$i" | cut -f1 -d' ')} % 78))]}"\
+      "$i" "$txtrst"
+  done
+}
+
