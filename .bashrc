@@ -67,6 +67,16 @@ function __set_my_git_prompt
   fi
 }
 
+function __colorize_prompt_toggle()
+{
+  if ! grep -q colorize_pwd <<<"$PS1"; then
+    export PS1="`echo $PS1 | sed 's/\\\w/\$colorprompt/'`"
+    PROMPT_COMMAND=__colorize_pwd
+  else
+    export PS1="${PS1/\$colorprompt/\\w}"
+  fi
+}
+
 if [[ $TERM == st-256color ]]; then
   export COLORTERM=truecolor
 fi
@@ -86,6 +96,8 @@ fi
 
 # Now that color is set, modify for git prompt
 __set_my_git_prompt
+
+[[ $COLORTERM ]] && __colorize_prompt_toggle
 
 # Login Shell hello items
 echo -en $txtred
